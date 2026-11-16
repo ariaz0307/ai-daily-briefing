@@ -24,7 +24,7 @@ NOW = datetime.datetime.now(KST)
 
 MODEL = os.environ.get(
     "GEMINI_MODEL",
-    "gemini-2.5-flash-lite"
+    "gemini-3.5-flash-lite"
 ).strip()
 
 API_KEY = os.environ.get(
