@@ -1,1 +1,101 @@
 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Daily Briefing</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #f4f6fa;
+      color: #172238;
+      font-family: -apple-system, sans-serif;
+    }
+    header {
+      background: #172238;
+      color: white;
+      padding: 24px;
+      border-radius: 16px;
+    }
+    h1 { font-size: 25px; }
+    article {
+      background: white;
+      padding: 20px;
+      margin-top: 14px;
+      border-radius: 14px;
+    }
+    a { color: #2364c4; }
+    .date { color: #a8c5f5; }
+    .md { background: #eef5ff; padding: 12px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>AI DAILY BRIEFING</h1>
+    <p id="date" class="date">브리핑 불러오는 중...</p>
+    <h2 id="headline"></h2>
+  </header>
+  <main id="news"></main>
+  <script>
+    async function loadBriefing() {
+      try {
+        const response = await fetch(
+          "./briefing.json?t=" + Date.now()
+        );
+        if (!response.ok) throw new Error("파일 없음");
+        const data = await response.json();
+        document.getElementById("date").textContent =
+          data.date || "최신 브리핑";
+        document.getElementById("headline").textContent =
+          data.headline || data.summary || "";
+
+        const main = document.getElementById("news");
+        main.replaceChildren();
+
+        const items = data.news || data.articles || [];
+        items.forEach((item, index) => {
+          const article = document.createElement("article");
+          const title = document.createElement("h2");
+          title.textContent = (index + 1) + ". " +
+            (item.title || "AI 뉴스");
+          article.appendChild(title);
+
+          const summary = document.createElement("p");
+          summary.textContent = item.summary || "";
+          article.appendChild(summary);
+
+          const md = document.createElement("div");
+          md.className = "md";
+          md.textContent = "MD 업무 적용: " +
+            (item.md_impact || item.why_important ||
+             item.application || "");
+          article.appendChild(md);
+
+          if (item.url && /^https?:\/\//.test(item.url)) {
+            const link = document.createElement("a");
+            link.href = item.url;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.textContent = "원문 기사 보기";
+            article.appendChild(link);
+          }
+          main.appendChild(article);
+        });
+
+        if (!items.length) {
+          main.textContent = "표시할 뉴스가 없습니다.";
+        }
+      } catch (error) {
+        document.getElementById("date").textContent =
+          "브리핑 준비 중";
+        document.getElementById("news").textContent =
+          "첫 번째 자동 브리핑이 생성되면 여기에 표시됩니다.";
+      }
+    }
+    loadBriefing();
+  </script>
+</body>
+</html>
+
