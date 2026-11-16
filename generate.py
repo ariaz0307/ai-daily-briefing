@@ -24,7 +24,7 @@ def collect():
 def generate(items):
  key=os.environ.get('GEMINI_API_KEY','').strip()
  if not key:raise RuntimeError('GEMINI_API_KEY missing')
- model=os.environ.get('GEMINI_MODEL','gemini-2.5-flash-lite').strip()
+model=os.environ.get('GEMINI_MODEL','gemini-3.5-flash-lite').strip()
  prompt='''당신은 한국 쇼핑몰 MD를 위한 AI 기술 뉴스 편집자입니다. 제공된 RSS 제목/요약/링크만을 근거로 중요 뉴스 5건을 선정하세요. 출처에 없는 사실, 수치, 인용, 기능, 날짜를 만들어내지 마세요. 최근 기사와 서로 다른 이슈를 우선하고 광고성 기사/중복을 피하세요. 제공된 링크를 그대로 사용하세요. RSS만으로 확인 불가능한 내용은 단정하지 마세요. 반드시 JSON 객체만 출력하세요. 스키마: {"headline":"오늘의 핵심 한 문장","items":[{"source_index":0,"title":"간결한 한국어 제목","summary":"확인된 핵심 사실 2문장","why_it_matters":"행사 일정, 판매자 자료 취합, 메일 응대, 상품 검증 등 MD 업무에 왜 중요한지 1~2문장","action":"실행 가능한 제안 1문장"}]} . 정확히 5개, source_index는 제공된 자료의 index입니다. 자료는 다음과 같습니다:\n'''+json.dumps([{'index':i,**x} for i,x in enumerate(items)],ensure_ascii=False)
  endpoint='https://generativelanguage.googleapis.com/v1beta/models/'+urllib.parse.quote(model,safe='')+':generateContent'
  payload={'contents':[{'parts':[{'text':prompt}]}],'generationConfig':{'responseMimeType':'application/json','temperature':0.25,'maxOutputTokens':2800}}
